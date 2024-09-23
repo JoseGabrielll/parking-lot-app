@@ -24,9 +24,12 @@ def connect_db(config=AppConfig()):
     
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-def get_metadata(): # TODO: used by alembic
+def get_metadata():
     from sqlmodel import SQLModel
 
+    from app.backend.database.models.car_model import Car
+    from app.backend.database.models.monthly_car_model import MonthlyCar
+    from app.backend.database.models.parking_lot_model import ParkingLot, ParkingLotHistory
     from app.backend.database.models.user_model import User
 
     return SQLModel.metadata
