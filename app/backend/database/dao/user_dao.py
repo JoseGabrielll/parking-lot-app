@@ -12,7 +12,7 @@ class UserDAO:
             session.commit()
             session.refresh(user)
         
-        return user
+        return user.model_dump(exclude={"password"})
     
     @staticmethod
     def get_user_by_id(id: int) -> User | None:

@@ -10,7 +10,7 @@ user_router = APIRouter(prefix="/api/user")
 
 @user_router.post("/", response_model=User, tags=['User'], status_code=201)
 async def create_user(user: User, database: Session = Depends(get_database)) -> User:
-    """It creates a user
+    """It creates an user
 
     Args:
         user (User): user schema
