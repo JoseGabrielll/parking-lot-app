@@ -1,5 +1,3 @@
-
-
 from sqlmodel import Session, select
 from app.backend.database.models.user_model import User
 from app.backend.database.database import engine

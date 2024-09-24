@@ -1,5 +1,3 @@
-
-
 from fastapi import HTTPException
 from sqlmodel import Session
 from app.backend.database.models.user_model import User
