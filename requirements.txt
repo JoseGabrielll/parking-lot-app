@@ -4,3 +4,6 @@ alembic==1.13.2
 python-dotenv==1.0.1
 asyncpg==0.29.0
 psycopg2-binary==2.9.9
+pwdlib[argon2]==0.2.1
+python-multipart==0.0.10
+pyjwt==2.9.0

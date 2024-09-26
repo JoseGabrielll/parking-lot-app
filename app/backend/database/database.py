@@ -2,12 +2,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from sqlmodel import create_engine
 
-from app.backend.config import AppConfig
+from app.backend.settings import AppSettings
 
 engine = None
 SessionLocal = None
 
-def connect_db(config=AppConfig()):
+def connect_db(config=AppSettings()):
     global engine
     global SessionLocal
 

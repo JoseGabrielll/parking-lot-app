@@ -6,9 +6,9 @@ from app.backend.database.models.user_model import User
 from app.backend.service.user_service import UserService
 
 
-user_router = APIRouter(prefix="/api/user")
+user_router = APIRouter(prefix="/api/user", tags=['User'])
 
-@user_router.post("/", response_model=User, tags=['User'], status_code=201)
+@user_router.post("/", response_model=User, status_code=201)
 async def create_user(user: User, database: Session = Depends(get_database)) -> User:
     """It creates an user
 
@@ -29,7 +29,7 @@ async def create_user(user: User, database: Session = Depends(get_database)) -> 
         raise HTTPException(status_code=400, detail={"title": "Error", "message": "Error while trying to create user."})
 
 
-@user_router.get("/{id}", response_model=User, tags=['User'])
+@user_router.get("/{id}", response_model=User)
 async def get_user(id: int, database: Session = Depends(get_database)) -> User:
     """It gets the user by id
 
@@ -45,9 +45,12 @@ async def get_user(id: int, database: Session = Depends(get_database)) -> User:
         User: user object from database
     """
     try:
-        return UserService.get_user_by_id(id)
+        return UserService.get_user_by_field('id', id)
     except HTTPException as http_error:
         raise http_error
+    except ValueError as value_error:
+        # TODO: add logger.error here
+        raise HTTPException(status_code=400, detail={"title": "Error", "message": "Value error"})
     except Exception as error:
         # TODO: add logger.error here
         raise HTTPException(status_code=400, detail={"title": "Error", "message": "Error while trying to get user."})
