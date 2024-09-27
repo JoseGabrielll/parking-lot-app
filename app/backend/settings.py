@@ -4,7 +4,7 @@ import os
 class AppSettings():
     def __init__(self) -> None:
         load_dotenv()
-        self.DB_SERVER = "sqlite:///pyparking.db"
+        self.DB_SERVER = "sqlite+aiosqlite:///pyparking.db"
         # self.DB_SERVER = os.getenv("DATABASE_URL")
         self.SECRET_KEY = os.getenv("SECRET_KEY")
         self.ALGORITHM = os.getenv("ALGORITHM")
@@ -14,7 +14,7 @@ class AppSettings():
 class AppTestConfig(AppSettings):
     def __init__(self) -> None:
         super().__init__()
-        self.DB_SERVER = "sqlite:///:memory:"
+        self.DB_SERVER = "sqlite+aiosqlite:///:memory:"
 
 # test_config = AppTestConfig()
 app_settings = AppSettings()

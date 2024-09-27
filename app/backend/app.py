@@ -5,8 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.backend.settings import AppSettings
-from app.backend.database.database import connect_db, get_database, upgrade_db
+from app.backend.database.database import connect_db, get_database_session, upgrade_db
 
 
 def register_route(application: FastAPI):
@@ -20,21 +19,22 @@ def register_route(application: FastAPI):
     from app.backend.route.auth_route import token_router
 
     application.include_router(frontend_router)
-    application.include_router(user_router, dependencies = [Depends(get_database)])
-    application.include_router(token_router, dependencies = [Depends(get_database)])
+    application.include_router(user_router, dependencies = [Depends(get_database_session)])
+    application.include_router(token_router, dependencies = [Depends(get_database_session)])
 
     angular_dist_dir = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist', 'frontend', 'browser')
     application.mount("/", StaticFiles(directory=angular_dist_dir, html=True), name="browser")
 
-def create_app(config=AppSettings()) -> FastAPI:
+
+async def create_app() -> FastAPI:
     """It creates the main application
 
     Args:
         config (class, optional): Config class. Defaults to AppConfig().
     """
     application = FastAPI(title="PyParking", version="0.0.1", description="PyParking")
-    connect_db(config)
-    upgrade_db()
+    await connect_db()
+    await upgrade_db()
     register_route(application)
     register_422_exception_handler(application)
 

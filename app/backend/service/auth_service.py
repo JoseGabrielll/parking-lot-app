@@ -38,7 +38,7 @@ class AuthenticationService():
         return pwd_context.verify(password, hashed_password)
     
     @staticmethod
-    def get_token(username: str, password: str) -> Token:
+    async def get_token(username: str, password: str) -> Token:
         """It checks the user credentials and returns an access token
 
         Args:
@@ -51,7 +51,7 @@ class AuthenticationService():
         Returns:
             Token: access token
         """
-        user = UserDAO.get_user_by_field('username', username)
+        user = await UserDAO.get_user_by_field('username', username)
         if not user or not AuthenticationService.verify_password(password, user.password):
             raise HTTPException(
                 status_code=401, 

@@ -9,19 +9,19 @@ from app.backend.service.auth_service import AuthenticationService
 class UserService:
     
     @staticmethod
-    def create_user(user: User) -> User:
+    async def create_user(user: User) -> User:
         user.id = None
         user.password = AuthenticationService.generate_password_hash(user.password)
-        return UserDAO.create_user(user)
+        return await UserDAO.create_user(user)
     
     @staticmethod
-    def get_user_by_field(attribute: str, value: Any) -> User:
+    async def get_user_by_field(attribute: str, value: Any) -> User:
         UserService.validate_attribute(attribute)
         
-        user = UserDAO.get_user_by_field(attribute, value)
+        user = await UserDAO.get_user_by_field(attribute, value)
         if not user:
             raise HTTPException(status_code=404, detail={"title": "Error", "message": "User not found!"})
-        return user
+        return user.model_dump(exclude={"password"})
     
     @staticmethod
     def validate_attribute(attribute: str) -> User:
