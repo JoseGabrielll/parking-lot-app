@@ -1,3 +1,4 @@
+import asyncio
 import os
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
@@ -26,15 +27,15 @@ def register_route(application: FastAPI):
     application.mount("/", StaticFiles(directory=angular_dist_dir, html=True), name="browser")
 
 
-async def create_app() -> FastAPI:
+def create_app() -> FastAPI:
     """It creates the main application
 
     Args:
         config (class, optional): Config class. Defaults to AppConfig().
     """
     application = FastAPI(title="PyParking", version="0.0.1", description="PyParking")
-    await connect_db()
-    await upgrade_db()
+    connect_db()
+    upgrade_db()
     register_route(application)
     register_422_exception_handler(application)
 

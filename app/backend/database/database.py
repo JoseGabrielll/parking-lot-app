@@ -7,7 +7,7 @@ from sqlalchemy.pool import StaticPool
 engine = None
 SessionLocal = None
 
-async def connect_db():
+def connect_db():
     global engine
     global SessionLocal
 
@@ -27,6 +27,8 @@ async def connect_db():
         expire_on_commit=False
     )
 
+    return engine
+
 def get_metadata():
     from app.backend.database.models.car_model import Car
     from app.backend.database.models.monthly_car_model import MonthlyCar
@@ -42,11 +44,12 @@ async def get_database_session():
         finally:
             await session.close()
 
-async def upgrade_db():
-    async with engine.begin() as conn:
-        from app.backend.database.models.car_model import Car
-        from app.backend.database.models.monthly_car_model import MonthlyCar
-        from app.backend.database.models.parking_lot_model import ParkingLot, ParkingLotHistory
-        from app.backend.database.models.user_model import User
 
-        await conn.run_sync(SQLModel.metadata.create_all)
+def upgrade_db():
+    from alembic import command
+    from alembic.config import Config
+
+    alembic_config = Config("alembic.ini")
+    alembic_config.attributes["configure_logger"] = False
+    alembic_config.attributes["connection"] = engine
+    command.upgrade(alembic_config, "head")
