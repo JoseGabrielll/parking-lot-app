@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.backend.database.database import connect_db, get_database_session, upgrade_db
+from app.backend.settings import AppSettings
 
 
 def register_route(application: FastAPI):
@@ -27,14 +28,14 @@ def register_route(application: FastAPI):
     application.mount("/", StaticFiles(directory=angular_dist_dir, html=True), name="browser")
 
 
-def create_app() -> FastAPI:
+def create_app(app_settings = AppSettings()) -> FastAPI:
     """It creates the main application
 
     Args:
         config (class, optional): Config class. Defaults to AppConfig().
     """
     application = FastAPI(title="PyParking", version="0.0.1", description="PyParking")
-    connect_db()
+    connect_db(app_settings.DB_SERVER)
     upgrade_db()
     register_route(application)
     register_422_exception_handler(application)

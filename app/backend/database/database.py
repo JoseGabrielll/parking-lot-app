@@ -7,12 +7,12 @@ from sqlalchemy.pool import StaticPool
 engine = None
 SessionLocal = None
 
-def connect_db():
+def connect_db(db_server: str = app_settings.DB_SERVER):
     global engine
     global SessionLocal
 
-    if 'sqlite' in app_settings.DB_SERVER:
-        engine = create_async_engine(app_settings.DB_SERVER, 
+    if 'sqlite' in db_server:
+        engine = create_async_engine(db_server, 
                                      connect_args={"check_same_thread": False},
                                      poolclass=StaticPool)
     else:  # pragma: no cover
