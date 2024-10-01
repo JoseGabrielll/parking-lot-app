@@ -5,6 +5,7 @@ from sqlmodel import Session
 from app.backend.database.database import get_database_session
 from app.backend.database.models.user_model import User
 from app.backend.service.user_service import UserService
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 user_router = APIRouter(prefix="/api/user", tags=['User'])
@@ -31,7 +32,7 @@ async def create_user(user: User, database: Session = Depends(get_database_sessi
 
 
 @user_router.get("/{id}", response_model=User)
-async def get_user(id: int, database: Session = Depends(get_database_session)) -> User:
+async def get_user(id: int, database: AsyncSession = Depends(get_database_session)) -> User:
     """It gets the user by id
 
     Args:

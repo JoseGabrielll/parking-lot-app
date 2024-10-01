@@ -1,13 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
-from app.backend.settings import app_settings 
 from sqlalchemy.pool import StaticPool
+from typing import AsyncGenerator
+
+from app.backend.settings import AppSettings 
 
 engine = None
 SessionLocal = None
 
-def connect_db(db_server: str = app_settings.DB_SERVER):
+def connect_db(db_server: str = AppSettings().DB_SERVER):
     global engine
     global SessionLocal
 
@@ -16,7 +18,7 @@ def connect_db(db_server: str = app_settings.DB_SERVER):
                                      connect_args={"check_same_thread": False},
                                      poolclass=StaticPool)
     else:  # pragma: no cover
-        engine = create_async_engine(app_settings.DB_SERVER, 
+        engine = create_async_engine(db_server, 
                                      pool_pre_ping=True)
     
     SessionLocal = sessionmaker(
@@ -37,7 +39,7 @@ def get_metadata():
 
     return SQLModel.metadata
 
-async def get_database_session():
+async def get_database_session() -> AsyncGenerator[AsyncSession, None]:
     async with SessionLocal() as session:
         try:
             yield session

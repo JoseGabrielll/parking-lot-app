@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 
 from app.backend.database.dao.user_dao import UserDAO
 from app.backend.database.schema.token_schema import Token
-from app.backend.settings import app_settings
+from app.backend.settings import AppSettings
 
 pwd_context = PasswordHash.recommended()
 
@@ -63,5 +63,5 @@ class AuthenticationService():
 
     @staticmethod
     def create_access_token(data: dict):
-        data['exp'] = datetime.now() + timedelta(minutes=app_settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        return encode(data, app_settings.SECRET_KEY, algorithm=app_settings.ALGORITHM)
+        data['exp'] = datetime.now() + timedelta(minutes=AppSettings().ACCESS_TOKEN_EXPIRE_MINUTES)
+        return encode(data, AppSettings().SECRET_KEY, algorithm=AppSettings().ALGORITHM)

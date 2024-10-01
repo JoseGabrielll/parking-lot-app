@@ -2,19 +2,9 @@ from dotenv import load_dotenv
 import os
 
 class AppSettings():
-    def __init__(self) -> None:
-        load_dotenv(override=True)
-        # self.DB_SERVER = "sqlite+aiosqlite:///pyparking.db"
-        self.DB_SERVER = os.getenv("DATABASE_URL")
+    load_dotenv(override=True)
+    def __init__(self, db_server: str = os.getenv("DATABASE_URL")) -> None:
+        self.DB_SERVER = db_server
         self.SECRET_KEY = os.getenv("SECRET_KEY")
         self.ALGORITHM = os.getenv("ALGORITHM")
         self.ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
-
-
-class AppTestConfig(AppSettings):
-    def __init__(self) -> None:
-        super().__init__()
-        self.DB_SERVER = "sqlite+aiosqlite:///:memory:"
-
-# test_config = AppTestConfig()
-app_settings = AppSettings()
