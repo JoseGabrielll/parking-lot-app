@@ -1,8 +1,9 @@
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
 
 class AppSettings():
-    load_dotenv(override=True)
     def __init__(self, db_server: str = os.getenv("DATABASE_URL")) -> None:
         self.DB_SERVER = db_server
         self.SECRET_KEY = os.getenv("SECRET_KEY")

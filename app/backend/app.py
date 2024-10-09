@@ -1,4 +1,3 @@
-import asyncio
 import os
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
@@ -6,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.backend.database.database import connect_db, get_database_session, upgrade_db
+from app.backend.database.database import connect_db, get_database_session, upgrade_database
 from app.backend.settings import AppSettings
 
 
@@ -34,9 +33,11 @@ def create_app(app_settings = AppSettings()) -> FastAPI:
     Args:
         config (class, optional): Config class. Defaults to AppConfig().
     """
-    application = FastAPI(title="PyParking", version="0.0.1", description="PyParking")
-    connect_db(app_settings.DB_SERVER)
-    upgrade_db()
+    application = FastAPI(title="PyParking", 
+                          version="0.0.1", 
+                          description="PyParking")
+    async_engine = connect_db(app_settings.DB_SERVER)
+    upgrade_database(async_engine)
     register_route(application)
     register_422_exception_handler(application)
 

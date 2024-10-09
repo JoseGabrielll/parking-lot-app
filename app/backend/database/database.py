@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 from sqlalchemy.pool import StaticPool
@@ -39,7 +39,7 @@ def get_metadata():
 
     return SQLModel.metadata
 
-async def get_database_session() -> AsyncGenerator[AsyncSession, None]:
+async def get_database_session() -> AsyncGenerator[AsyncSession, None]: # pragma: no cover
     async with SessionLocal() as session:
         try:
             yield session
@@ -47,11 +47,19 @@ async def get_database_session() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 
-def upgrade_db():
+def upgrade_database(async_engine: AsyncEngine): # pragma: no cover
+    if "memory" in str(async_engine.url):
+        return
+
     from alembic import command
     from alembic.config import Config
 
     alembic_config = Config("alembic.ini")
     alembic_config.attributes["configure_logger"] = False
-    alembic_config.attributes["connection"] = engine
+    alembic_config.attributes["connection"] = async_engine
     command.upgrade(alembic_config, "head")
+
+
+async def create_test_tables(async_engine: AsyncEngine):
+    async with async_engine.begin() as conn:
+        await conn.run_sync(get_metadata().create_all)

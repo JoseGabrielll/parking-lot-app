@@ -4,14 +4,15 @@ from sqlmodel import Session
 
 from app.backend.database.database import get_database_session
 from app.backend.database.models.user_model import User
+from app.backend.database.schema.user_schema import UserPayload
 from app.backend.service.user_service import UserService
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
 user_router = APIRouter(prefix="/api/user", tags=['User'])
 
-@user_router.post("/", response_model=User, status_code=201)
-async def create_user(user: User, database: Session = Depends(get_database_session)) -> User:
+@user_router.post("", response_model=User, status_code=201)
+async def create_user(user: UserPayload, database: AsyncSession = Depends(get_database_session)) -> User:
     """It creates an user
 
     Args:
@@ -25,9 +26,9 @@ async def create_user(user: User, database: Session = Depends(get_database_sessi
         User: user object from database
     """
     try:
-        return await UserService.create_user(user)
+        return await UserService.create_user(database, user)
     except Exception as error:
-        # TODO: add logger.error here
+        logger.error(error)
         raise HTTPException(status_code=400, detail={"title": "Error", "message": "Error while trying to create user."})
 
 
@@ -47,7 +48,7 @@ async def get_user(id: int, database: AsyncSession = Depends(get_database_sessio
         User: user object from database
     """
     try:
-        return await UserService.get_user_by_field('id', id)
+        return await UserService.get_user_by_field(database, 'id', id)
     except HTTPException as http_error:
         raise http_error
     except ValueError as value_error:

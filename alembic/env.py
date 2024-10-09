@@ -14,7 +14,7 @@ config.set_main_option("sqlalchemy.url", AppSettings().DB_SERVER)
 target_metadata = get_metadata()
 
 
-def run_migrations_online():
+async def run_migrations_online():
     connectable = context.config.attributes.get("connection", None)
 
     if connectable is None:
@@ -28,11 +28,7 @@ def run_migrations_online():
         )
 
     if isinstance(connectable, AsyncEngine):
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            asyncio.ensure_future(run_async_migrations(connectable))
-        else:
-            loop.run_until_complete(run_async_migrations(connectable))
+        await run_async_migrations(connectable)
     else:
         with connectable.connect() as connection:
             do_run_migrations(connection)
@@ -46,13 +42,13 @@ async def run_async_migrations(connectable):
 
 
 def do_run_migrations(connection):
-    try:
-        context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(connection=connection, target_metadata=target_metadata)
 
-        with context.begin_transaction():
-            context.run_migrations()
-    except Exception as error:
-        print(error)
-        raise error
+    with context.begin_transaction():
+        context.run_migrations()
 
-run_migrations_online()
+loop = asyncio.get_event_loop()
+if loop.is_running():
+    asyncio.ensure_future(run_migrations_online())
+else:
+    loop.run_until_complete(run_migrations_online())
