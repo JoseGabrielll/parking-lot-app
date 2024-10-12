@@ -3,7 +3,6 @@ import pytest
 
 from app.backend.database.dao.user_dao import UserDAO
 from app.backend.database.models.user_model import User
-from app.backend.database.schema.user_schema import UserPayload
 from app.backend.service.user_service import UserService
 
 
@@ -36,6 +35,17 @@ async def test_get_user_value_error_e2e(mock_get_user_by_field, test_app):
 
     assert response.status_code == 400
     assert response.json().get("detail") == {"title": "Error", "message": "Value error"}
+
+
+@pytest.mark.anyio
+@patch.object(UserDAO, "get_user_by_field")
+async def test_get_user_http_exception_e2e(mock_get_user_by_field, test_app):  
+    mock_get_user_by_field.return_value = None
+
+    response = await test_app.get("/api/user/1")
+
+    assert response.status_code == 404
+    assert response.json().get("detail") == {"title": "Error", "message": "User not found!"}
 
 
 @pytest.mark.anyio
@@ -78,3 +88,12 @@ async def test_create_user_exception_e2e(mock_create_user, test_app):
 
     assert response.status_code == 400
     assert response.json().get("detail") == {"title": "Error", "message": "Error while trying to create user."}
+
+
+async def test_create_user_invalid_payload_e2e(test_app):
+    payload = {"email": "dummy@test.com"}
+    response = await test_app.post("/api/user", json=payload)
+
+    assert response.status_code == 422
+    assert response.json() == {"detail": "Error on request body. Please check the submitted data and try again."}
+

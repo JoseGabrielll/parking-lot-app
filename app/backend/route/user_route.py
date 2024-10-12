@@ -1,18 +1,19 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.logger import logger
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.backend.database.database import get_database_session
 from app.backend.database.models.user_model import User
 from app.backend.database.schema.user_schema import UserPayload
 from app.backend.service.user_service import UserService
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 user_router = APIRouter(prefix="/api/user", tags=['User'])
+DatabaseSession = Annotated[AsyncSession, Depends(get_database_session)]
 
 @user_router.post("", response_model=User, status_code=201)
-async def create_user(user: UserPayload, database: AsyncSession = Depends(get_database_session)) -> User:
+async def create_user(user: UserPayload, database: DatabaseSession) -> User:
     """It creates an user
 
     Args:
@@ -33,7 +34,7 @@ async def create_user(user: UserPayload, database: AsyncSession = Depends(get_da
 
 
 @user_router.get("/{id}", response_model=User)
-async def get_user(id: int, database: AsyncSession = Depends(get_database_session)) -> User:
+async def get_user(id: int, database: DatabaseSession) -> User:
     """It gets the user by id
 
     Args:
