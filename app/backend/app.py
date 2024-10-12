@@ -57,7 +57,7 @@ def register_422_exception_handler(application: FastAPI):
     async def validation_exception_handler(request: Request, exc: RequestValidationError):
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content=jsonable_encoder({"detail": "Error on request body. Please check the submitted data and correct the issues."})
+            content=jsonable_encoder({"detail": "Error on request body. Please check the submitted data and try again."})
         )
 
 
