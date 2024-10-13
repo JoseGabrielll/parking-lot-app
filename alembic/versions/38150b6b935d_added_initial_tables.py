@@ -1,8 +1,8 @@
 """added initial tables
 
-Revision ID: 513731e99035
+Revision ID: 38150b6b935d
 Revises: 
-Create Date: 2024-09-30 14:19:18.433376
+Create Date: 2024-10-12 12:47:03.167854
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = '513731e99035'
+revision: str = '38150b6b935d'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,7 +27,7 @@ def upgrade() -> None:
     sa.Column('priece', sa.Float(), nullable=True),
     sa.Column('start_date', sa.Date(), nullable=True),
     sa.Column('end_date', sa.Date(), nullable=True),
-    sa.Column('created_date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('created_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('created_by', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('updated_by', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=True),
@@ -43,7 +43,7 @@ def upgrade() -> None:
     sa.Column('extra_priece', sa.Float(), nullable=True),
     sa.Column('allowed_time', sa.Integer(), nullable=True),
     sa.Column('cashier', sa.Float(), nullable=True),
-    sa.Column('created_date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('created_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('created_by', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('updated_by', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=True),
@@ -56,20 +56,21 @@ def upgrade() -> None:
     sa.Column('username', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=False),
     sa.Column('password', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
-    sa.Column('created_date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('role', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=False),
+    sa.Column('created_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('created_by', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=True),
     sa.Column('updated_date', sa.DateTime(), nullable=True),
     sa.Column('updated_by', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=False)
-    op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=False)
+    op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
+    op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=True)
     op.create_table('car',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('parking_lot_id', sa.Integer(), nullable=False),
     sa.Column('license_plate', sqlmodel.sql.sqltypes.AutoString(length=7), nullable=False),
-    sa.Column('plan_type', sa.Enum('MONTHLY', 'LOOSE', name='plantypeenum'), nullable=True),
-    sa.Column('entry_time', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('plan_type', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('entry_time', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('exit_time', sa.DateTime(), nullable=True),
     sa.Column('total_priece', sa.Float(), nullable=True),
     sa.Column('created_by', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=True),
@@ -88,7 +89,7 @@ def upgrade() -> None:
     sa.Column('extra_priece', sa.Float(), nullable=True),
     sa.Column('allowed_time', sa.Integer(), nullable=True),
     sa.Column('cashier', sa.Float(), nullable=True),
-    sa.Column('created_date', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('created_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('created_by', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=True),
     sa.ForeignKeyConstraint(['parking_lot_id'], ['parking_lot.id'], ),
     sa.PrimaryKeyConstraint('id')
