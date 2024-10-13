@@ -20,6 +20,8 @@ Before you begin, ensure you have met the following requirements:
 - **Docker / Docker Compose** - For containerizing the application
 - **Angular** - Frontend framework for build the project UI
 - **PostgreSQL** - Relational database
+- **Alembic** - Library to manage database migrations
+- **Pytest** - Library to test the app backend 
 
 
 ## How to Run the Project Locally with Docker
