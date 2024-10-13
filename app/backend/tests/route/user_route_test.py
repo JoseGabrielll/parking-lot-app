@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from fastapi import HTTPException
 import pytest
 
 from app.backend.database.dao.user_dao import UserDAO
@@ -72,6 +73,22 @@ async def test_create_user_success_e2e(test_app):
     assert response.status_code == 201
     assert response.json().get("username") == payload.get("username")
     assert response.json().get("email") == payload.get("email")
+
+
+@pytest.mark.anyio
+async def test_create_user_already_exists_e2e(test_app, async_session):
+    user = User(email="dummy2@gmail.com", username="dummy1234", password="1234567")
+    user_db = await mock_user(async_session, user)
+    payload = {
+        "username": user_db.get("username"),
+        "password": "123456",
+        "email": user_db.get("email")
+    }
+
+    response = await test_app.post("/api/user", json=payload)
+
+    assert response.status_code == 409
+    assert response.json().get("detail") == {"title": "Error", "message": "User already exists!"}
 
 
 @pytest.mark.anyio

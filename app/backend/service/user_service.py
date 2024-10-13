@@ -17,11 +17,18 @@ class UserService:
         Args:
             database (AsyncSession): database session
             user_payload (UserPayload): user payload
+        
+        Raises:
+            HTTPException: It raises an exception if the user already exists
 
         Returns:
             User: database user
         """
         user = User(**user_payload.model_dump())
+        db_user = await UserDAO.get_user_by_username_or_email(database, user)
+        if db_user:
+            raise HTTPException(status_code=409, detail={"title": "Error", "message": "User already exists!"})
+        
         user.password = AuthenticationService.generate_password_hash(user.password)
         return await UserDAO.create_user(database, user)
     

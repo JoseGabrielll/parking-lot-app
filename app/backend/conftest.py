@@ -10,7 +10,7 @@ from app.backend.database.database import AsyncSession, create_test_tables, get_
 from app.backend.settings import AppSettings
 
 
-@pytest_asyncio.fixture(name="async_session")
+@pytest_asyncio.fixture(name="async_session", scope="function")
 async def session_fixture():
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", 
                                 connect_args={"check_same_thread": False},
@@ -21,7 +21,7 @@ async def session_fixture():
         yield async_session
 
 
-@pytest_asyncio.fixture()  
+@pytest_asyncio.fixture(scope="function")  
 async def test_app(async_session: AsyncSession):
     def get_session_override():  
         return async_session

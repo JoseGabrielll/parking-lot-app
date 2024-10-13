@@ -21,6 +21,7 @@ async def create_user(user: UserPayload, database: DatabaseSession) -> User:
         database (Session, optional): database session. Defaults to Depends(get_database).
 
     Raises:
+        http_error: it returns 409 if user already exists
         HTTPException: it returns 400 for generic exceptions
 
     Returns:
@@ -28,6 +29,8 @@ async def create_user(user: UserPayload, database: DatabaseSession) -> User:
     """
     try:
         return await UserService.create_user(database, user)
+    except HTTPException as http_error:
+        raise http_error
     except Exception as error:
         logger.error(error)
         raise HTTPException(status_code=400, detail={"title": "Error", "message": "Error while trying to create user."})
