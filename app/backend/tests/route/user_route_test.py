@@ -1,14 +1,10 @@
 from unittest.mock import patch
-from fastapi import HTTPException
 import pytest
 
 from app.backend.database.dao.user_dao import UserDAO
 from app.backend.database.models.user_model import User
 from app.backend.service.user_service import UserService
-
-
-async def mock_user(async_session, user: User = User(email="dummy@gmail.com", username="dummy123", password="123456")):
-    return await UserDAO.create_user(async_session, user)
+from app.backend.tests.utils.mock_utils import mock_user
 
 
 @pytest.mark.anyio

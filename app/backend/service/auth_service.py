@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from datetime import datetime, timedelta
 from jwt import encode
 from pwdlib import PasswordHash
-from zoneinfo import ZoneInfo
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.backend.database.dao.user_dao import UserDAO
 from app.backend.database.schema.token_schema import Token
@@ -38,7 +38,7 @@ class AuthenticationService():
         return pwd_context.verify(password, hashed_password)
     
     @staticmethod
-    async def get_token(username: str, password: str) -> Token:
+    async def get_token(database: AsyncSession, username: str, password: str) -> Token:
         """It checks the user credentials and returns an access token
 
         Args:
@@ -51,7 +51,7 @@ class AuthenticationService():
         Returns:
             Token: access token
         """
-        user = await UserDAO.get_user_by_field('username', username)
+        user = await UserDAO.get_user_by_field(database, 'username', username)
         if not user or not AuthenticationService.verify_password(password, user.password):
             raise HTTPException(
                 status_code=401, 
@@ -63,5 +63,13 @@ class AuthenticationService():
 
     @staticmethod
     def create_access_token(data: dict):
+        """It generates a new token
+
+        Args:
+            data (dict): information to be added into token
+
+        Returns:
+            token: jwt token
+        """
         data['exp'] = datetime.now() + timedelta(minutes=AppSettings().ACCESS_TOKEN_EXPIRE_MINUTES)
         return encode(data, AppSettings().SECRET_KEY, algorithm=AppSettings().ALGORITHM)

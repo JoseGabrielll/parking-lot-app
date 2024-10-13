@@ -26,7 +26,10 @@ async def test_app(async_session: AsyncSession):
     def get_session_override():  
         return async_session
 
-    app = create_app(AppSettings(db_server="sqlite+aiosqlite:///:memory:"))
+    app = create_app(AppSettings(db_server="sqlite+aiosqlite:///:memory:",
+                                 secret_key="TEST123",
+                                 algorithm="HS256",
+                                 access_token_expire_minutes="5"))
     app.dependency_overrides[get_database_session] = get_session_override
     
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
