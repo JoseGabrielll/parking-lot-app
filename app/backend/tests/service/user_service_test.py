@@ -32,9 +32,9 @@ async def test_return_user_without_password(mock_get_user_dao):
                                           password="12345")
     
     user = await UserService.get_user_by_field(MagicMock(), "id", 1)
-    assert 'password' not in user.keys()
-    assert 'email' in  user.keys()
-    assert 'username' in  user.keys()
-    assert 'is_active' in  user.keys()
+    assert 'password' not in user.model_fields.keys()
+    assert 'email' in  user.model_fields.keys()
+    assert 'username' in  user.model_fields.keys()
+    assert 'is_active' in  user.model_fields.keys()
     
 

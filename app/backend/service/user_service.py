@@ -4,14 +4,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.backend.database.models.user_model import User
 from app.backend.database.dao.user_dao import UserDAO
-from app.backend.database.schema.user_schema import UserPayload
+from app.backend.database.schema.user_schema import UserPayload, UserSchema
 from app.backend.service.auth_service import AuthenticationService
 
 
 class UserService:
-    
+    ''' User service class with user business rules '''
+
     @staticmethod
-    async def create_user(database: AsyncSession, user_payload: UserPayload) -> User:
+    async def create_user(
+        database: AsyncSession,
+        user_payload: UserPayload
+    ) -> UserSchema:
         """It creates a new user
 
         Args:
@@ -27,13 +31,21 @@ class UserService:
         user = User(**user_payload.model_dump())
         db_user = await UserDAO.get_user_by_username_or_email(database, user)
         if db_user:
-            raise HTTPException(status_code=409, detail={"title": "Error", "message": "User already exists!"})
-        
+            raise HTTPException(
+                status_code=409,
+                detail={"title": "Error", "message": "User already exists!"}
+            )
+
         user.password = AuthenticationService.generate_password_hash(user.password)
-        return await UserDAO.create_user(database, user)
-    
+        user = await UserDAO.create_user(database, user)
+        return UserSchema.model_validate(user)
+
     @staticmethod
-    async def get_user_by_field(database: AsyncSession, attribute: str, value: Any) -> User:
+    async def get_user_by_field(
+        database: AsyncSession,
+        attribute: str,
+        value: Any
+    ) -> UserSchema:
         """It gets a user based in a user field
 
         Args:
@@ -48,12 +60,12 @@ class UserService:
             User: database user
         """
         UserService.validate_attribute(attribute)
-        
+
         user = await UserDAO.get_user_by_field(database, attribute, value)
         if not user:
             raise HTTPException(status_code=404, detail={"title": "Error", "message": "User not found!"})
-        return user.model_dump(exclude={"password"})
-    
+        return UserSchema.model_validate(user)
+
     @staticmethod
     def validate_attribute(attribute: str) -> User:
         """It validates if the attribute is valid for User model

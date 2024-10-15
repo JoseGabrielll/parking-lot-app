@@ -1,19 +1,22 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi.logger import logger
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import OAuth2PasswordBearer
 
-from app.backend.database.database import get_database_session
-from app.backend.database.models.user_model import User
-from app.backend.database.schema.user_schema import UserPayload
+from app.backend.database.schema.user_schema import UserPayload, UserSchema
 from app.backend.service.user_service import UserService
+from app.backend.utils.annotated_types import DatabaseSession, AuthUser
 
 
 user_router = APIRouter(prefix="/api/user", tags=['User'])
-DatabaseSession = Annotated[AsyncSession, Depends(get_database_session)]
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
-@user_router.post("", response_model=User, status_code=201)
-async def create_user(user: UserPayload, database: DatabaseSession) -> User:
+
+@user_router.post("", response_model=UserSchema, status_code=201)
+async def create_user(
+        user_payload: UserPayload,
+        database: DatabaseSession,
+        user: AuthUser
+    ) -> UserSchema:
     """It creates an user
 
     Args:
@@ -25,31 +28,38 @@ async def create_user(user: UserPayload, database: DatabaseSession) -> User:
         HTTPException: it returns 400 for generic exceptions
 
     Returns:
-        User: user object from database
+        UserSchema: user object from database
     """
     try:
-        return await UserService.create_user(database, user)
+        return await UserService.create_user(database, user_payload)
     except HTTPException as http_error:
         raise http_error
     except Exception as error:
         logger.error(error)
-        raise HTTPException(status_code=400, detail={"title": "Error", "message": "Error while trying to create user."})
+        raise HTTPException(
+            status_code=400,
+            detail={'title': 'Error', 'message': 'Error while trying to create user.'}
+            ) from error
 
 
-@user_router.get("/{id}", response_model=User)
-async def get_user(id: int, database: DatabaseSession) -> User:
+@user_router.get("/{id}", response_model=UserSchema)
+async def get_user(
+        id: int,
+        database: DatabaseSession,
+        user: AuthUser
+    ) -> UserSchema:
     """It gets the user by id
 
     Args:
         id (int): user id
-        database (Session, optional): database session. Defaults to Depends(get_database).
+        database (Session): database session. Defaults to Depends(get_database).
 
     Raises:
         http_error: it returns 404 if user doesn`t exists
         HTTPException: it returns 400 for generic exceptions
 
     Returns:
-        User: user object from database
+        UserSchema: user object from database
     """
     try:
         return await UserService.get_user_by_field(database, 'id', id)
@@ -57,7 +67,13 @@ async def get_user(id: int, database: DatabaseSession) -> User:
         raise http_error
     except ValueError as value_error:
         logger.error(value_error)
-        raise HTTPException(status_code=400, detail={"title": "Error", "message": "Value error"})
+        raise HTTPException(
+            status_code=400,
+            detail={"title": "Error", "message": "Value error"}
+            ) from value_error
     except Exception as error:
         logger.error(error)
-        raise HTTPException(status_code=400, detail={"title": "Error", "message": "Error while trying to get user."})
+        raise HTTPException(
+            status_code=400,
+            detail={"title": "Error", "message": "Error while trying to get user."}
+            ) from error

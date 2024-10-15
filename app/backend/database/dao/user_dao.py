@@ -14,14 +14,21 @@ class UserDAO:
         return user.model_dump(exclude={"password"})
 
     @staticmethod
-    async def get_user_by_field(database: AsyncSession, attribute: str, value: Any) -> User | None:
+    async def get_user_by_field(
+        database: AsyncSession,
+        attribute: str,
+        value: Any
+    ) -> User | None:
         statement = select(User).where(getattr(User, attribute) == value).limit(1)
         result = await database.execute(statement)
         return result.scalars().first()
     
     @staticmethod
-    async def get_user_by_username_or_email(database: AsyncSession, user: User) -> User | None:
-        statement = select(User).where(User.username == user.username or 
+    async def get_user_by_username_or_email(
+        database: AsyncSession, 
+        user: User
+    ) -> User | None:
+        statement = select(User).where(User.username == user.username or
                                        User.email == user.email).limit(1)
         result = await database.execute(statement)
         return result.scalars().first()

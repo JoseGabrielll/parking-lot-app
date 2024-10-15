@@ -29,14 +29,13 @@ async def get_access_token(database: DatabaseSession,
     """
     try:
         return await AuthenticationService.get_token(database,
-                                                    form_data.username, 
+                                                    form_data.username,
                                                     form_data.password)
     except HTTPException as http_error:
         raise http_error
     except Exception as error:
         logger.error(error)
-        raise HTTPException(status_code=400, detail={"title": "Error", "message": "Error while trying to get token."})
-
-                           
-    
-
+        raise HTTPException(
+            status_code=400,
+            detail={"title": "Error", "message": "Error while trying to get token."}
+        ) from error
