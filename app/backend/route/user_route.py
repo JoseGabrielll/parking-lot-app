@@ -3,7 +3,9 @@ from fastapi.logger import logger
 from fastapi.security import OAuth2PasswordBearer
 
 from app.backend.database.schema.user_schema import UserPayload, UserSchema
+from app.backend.database.models.user_model import UserRoles
 from app.backend.service.user_service import UserService
+from app.backend.tests.utils.decorators import validate_user_access
 from app.backend.utils.annotated_types import DatabaseSession, AuthUser
 
 
@@ -12,6 +14,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 
 @user_router.post("", response_model=UserSchema, status_code=201)
+@validate_user_access([UserRoles.ADMIN.value])
 async def create_user(
         user_payload: UserPayload,
         database: DatabaseSession,
@@ -43,6 +46,7 @@ async def create_user(
 
 
 @user_router.get("/{id}", response_model=UserSchema)
+@validate_user_access([UserRoles.ADMIN.value, UserRoles.EMPLOYEE.value])
 async def get_user(
         id: int,
         database: DatabaseSession,
